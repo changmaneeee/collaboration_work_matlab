@@ -14,6 +14,12 @@ cfg.gs_selection   = 'all';             % 'all' = every station in GroundStation
 cfg.bands_selected = {'X','Ka','EW'};   % subset of fieldnames(BandParameters); cell because each entry is a name (text), not a number
 cfg.avail          = 0.999;             % link availability (single for Step A). [Step C] becomes a vector + innermost loop.
                                         % NOTE: avail drives the ITU-R loss inputs via exceedance p = 1 - avail (e.g. 0.999 -> p = 0.1%).
+                                        % [2026-06-11] Must be one of the availabilities tabulated in
+                                        % availability_input_candidates.csv:
+                                        %   0.70 0.80 0.90 0.95 0.98 0.99 0.995 0.998 0.999 0.9995 0.9999
+                                        % Phase 1 calls ApplyAvailabilityInputs, which overrides
+                                        % L_water/rho_surf/N_wet per station for this avail and EXCLUDES the
+                                        % rain term for p > 5% (avail <= 0.90; P.618-14 Sec.2.5 Eq.(66)).
 
 % --- FIXED: Keplerian orbital elements (NOT swept; this is the mission baseline orbit) ---
 % satelliteScenario's satellite() takes all six classical elements:
@@ -79,6 +85,13 @@ for k = 1:numel(cfg.bands_selected)
         error('main:bad_Band','band "%s" not in Band Parameters()', cfg.bands_selected{k});
     end
 end
+
+% --- [2026-06-11] Availability-dependent ITU inputs (P.618-14 Eq.(65)/(66)) ---
+% Overrides L_water / rho_surf / N_wet of the SELECTED stations (works for 'all'
+% or any subset) with the values required at cfg.avail, read from
+% availability_input_candidates.csv, prints the applied set, and tags each
+% station with rain_included (false -> Eq.(66): rain term excluded, p > 5%).
+stations_all = ApplyAvailabilityInputs(stations_all, gs_list, cfg.avail);
 
 fprintf('  GS (%d) : %s\n', numel(gs_list), strjoin(gs_list', ', '));
 fprintf('  Bands   : %s\n', strjoin(cfg.bands_selected, ', '));

@@ -50,7 +50,17 @@ function L = LinkBudget(band, gs, sc_data, cfg)
     L_gas = CalcZenithGasLoss(band.freq_Hz, alt, el_vis, rho);
 
     % Rain Attenuation
-    L_rain = CalcRainLoss(band.freq_Hz, R001, el_vis, hRain, alt, lat, avail_pct);
+    % [P.618-14 Sec.2.5, 2026-06-11] The rain term enters the total attenuation
+    % only through Eq.(65), whose rain scaling (Step 10) is valid for
+    % 0.001% <= p <= 5%. For p > 5% (avail <= 0.95 excl.) Eq.(66) applies and the
+    % rain term is EXCLUDED. ApplyAvailabilityInputs tags each station with
+    % gs.rain_included from availability_input_candidates.csv; untagged stations
+    % (legacy callers) keep the original always-on behaviour.
+    if isfield(gs, 'rain_included') && ~gs.rain_included
+        L_rain = zeros(size(el_vis));
+    else
+        L_rain = CalcRainLoss(band.freq_Hz, R001, el_vis, hRain, alt, lat, avail_pct);
+    end
 
     % Cloud Attenuation
     L_cloud = CalcCloudLoss(band.freq_Hz, el_vis, Lwat);
