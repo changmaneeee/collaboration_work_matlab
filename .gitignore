@@ -7,3 +7,10 @@
 
 # OS / editor cruft
 .DS_Store
+
+# ITU files
+R-REC-P.*/
+R-REC-P.*.zip
+ITURDigitalMaps/
+ITURDigitalMaps.tar.gz
+_backup_pre_p618fix/
