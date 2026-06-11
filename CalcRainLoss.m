@@ -41,6 +41,13 @@ function [L_rain, rain_slant_path] = CalcRainLoss(freq, R001, el_deg, h_rain_lim
 
     %% 2. Slant-path length (Ls) [km]
     % Ls = (hR - hs) / sin(theta)
+    % [NOTE / ITU-R P.618-14 Step 2, p.7] Eq.(1) below is valid for theta >= 5 deg ONLY.
+    % For theta < 5 deg the standard mandates Eq.(2):
+    %   Ls = 2(hR-hs) / ( sqrt(sin^2(theta) + 2(hR-hs)/Re) + sin(theta) ),  Re = 8500 km.
+    % Eq.(2) is INTENTIONALLY not implemented: typical GS antennas cannot receive
+    % below 5 deg elevation and main_v2 enforces cfg.elev_mask_deg = 5.
+    % If the elevation mask is ever lowered below 5 deg, implement Eq.(2) here
+    % (see VERIFICATION_REPORT.md, finding F-7).
     Ls = (h_R_km - h_s_km) ./sind(theta);
 
     if (h_R_km - h_s_km) <= 0
@@ -71,9 +78,16 @@ function [L_rain, rain_slant_path] = CalcRainLoss(freq, R001, el_deg, h_rain_lim
     if size(gamma_R, 1) ~= size(theta, 1)
         gamma_R = gamma_R';
     end
-    figure; plot(theta, gamma_R, '.-'); grid on;  
-    xlabel('Elevation (deg)'); ylabel('gamma_R (from rainpl)');
-    title('Check: gamma_R should NOT depend on elevation');
+    % [FIX 2026-06-11] Debug plot DISABLED (was: figure; plot(theta, gamma_R, ...)).
+    % Reason: this function is called once per (GS, band) pair, so a full run of
+    % main_v2 spawned 5x3 = 15 figure windows and slowed batch/server (-nodisplay)
+    % runs; it also ignored cfg.show_plots. NOTE the old plot title's premise
+    % ("gamma_R should NOT depend on elevation") only holds for tau = 45 deg,
+    % where cos(2*tau) = 0 kills the theta-dependence in P.838-3 Eqs.(4)-(5).
+    % Re-enable manually if needed:
+    %   figure; plot(theta, gamma_R, '.-'); grid on;
+    %   xlabel('Elevation (deg)'); ylabel('gamma_R [dB/km] (P.838-3 direct)');
+    %   title('Debug: gamma_R vs elevation');
 
     %% 6. Horizontal reduction factor (r0.01)
     %Rain isn't uniform at Horizontal
@@ -116,13 +130,18 @@ function [L_rain, rain_slant_path] = CalcRainLoss(freq, R001, el_deg, h_rain_lim
     %% 10. Scaling to target probability (Ap)
 
     if abs(target_p - 0.01) < 1e-6
-        Ap = A001; %If Target probability is 0.01(Availbility 99.9%), Keep going
+        Ap = A001; %If target probability is exactly 0.01% (availability 99.99%), Eq.(8) reduces to Ap = A001
     else
-        %Beta Calculation
-        if target_p >= 1 || abs(gs_lat) >= 36
-            beta = 0;
-        else
-            beta = -0.005 * (abs(gs_lat) - 36);
+        %Beta Calculation [ITU-R P.618-14 Step 10, p.8 - THREE cases]
+        %  case 1: p >= 1%  or |lat| >= 36 deg            -> beta = 0
+        %  case 2: p < 1%, |lat| < 36, theta >= 25 deg    -> beta = -0.005(|lat|-36)
+        %  case 3: OTHERWISE (theta < 25 deg)             -> beta = -0.005(|lat|-36) + 1.8 - 4.25*sin(theta)
+        %  NOTE: case 3 depends on theta, so beta is a PER-SAMPLE VECTOR.
+        beta = zeros(size(theta));
+        if target_p < 1 && abs(gs_lat) < 36
+            beta(:) = -0.005 * (abs(gs_lat) - 36);
+            lowEl = theta < 25;
+            beta(lowEl) = beta(lowEl) + 1.8 - 4.25*sind(theta(lowEl));
         end
 
         safe_A001 = A001;
