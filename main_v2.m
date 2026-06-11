@@ -135,9 +135,14 @@ for g = 1:numel(gs_list)
             bName = cfg.bands_selected{k};
             band  = bands_all.(bName);
 
+            % [FIX 2026-06-11] gs0 (digit zero) -> gsO (capital letter O).
+            % The ground-station object is defined as gsO at the top of this GS
+            % loop; 'gs0' was never defined, so with the leading 'clear' every
+            % run aborted here with "Unrecognized function or variable 'gs0'".
+            % (Code Analyzer cannot catch undefined variables in scripts.)
             gmbSat  = gimbal(sat);
-            gmbGS   = gimbal(gs0);
-            pointAt(gmbSat, gs0);
+            gmbGS   = gimbal(gsO);
+            pointAt(gmbSat, gsO);
             pointAt(gmbGS, sat);
             
             %---Transmitter-------------------------------------
