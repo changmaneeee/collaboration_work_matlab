@@ -7,11 +7,11 @@
 
 ## 0. 한 문단 요약
 
-5개 추출 스크립트는 **전부 올바르게 작동**함을 ITU 현행 문서·공식 readme·그리드 노드 테스트로 입증했고(원본의 유일한 절차 생략 = P.836 고도보정, v2에서 공식 구현, 영향 ±4.6%), 전 백분위 데이터(L 23종 / RHO 18종×2방법 / NWET 18종)를 추출해 후보군 테이블로 정리했으며, **CalcRainLoss β 3분기 수정(이론비와 4자리 일치 검증) + θ<5° 각주 + GroundStations 15개 값의 P.618-14 정합 교체**를 백업 후 적용 완료했다. ⚠ **main_v2.m의 `gs0` 오타(P0)는 이번 지시 범위 밖이라 여전히 미수정** — 전체 실행 전 반드시 수정 필요.
+5개 추출 스크립트는 **전부 올바르게 작동**함을 ITU 현행 문서·공식 readme·그리드 노드 테스트로 입증했고(원본의 유일한 절차 생략 = P.836 고도보정, v2에서 공식 구현, 영향 ±4.6%), 전 백분위 데이터(L 23종 / RHO 18종×2방법 / NWET 18종)를 추출해 후보군 테이블로 정리했으며, **CalcRainLoss β 3분기 수정(이론비와 4자리 일치 검증) + θ<5° 각주 + GroundStations 15개 값의 P.618-14 정합 교체**를 백업 후 적용 완료했다. ⚠ main_v2.m의 `gs0` 오타(P0)는 본 T1~T5 작업 범위 밖이었으나, **같은 날(2026-06-11) 별도 수정으로 해소 완료** (§7 항목 1 참조; main_v2.m FIX 각주, 코드 내 gs0 잔존 0건 — 현재 전체 실행 가능).
 
 ## 1. [T1] 추출 파일 전수 탐색·분석
 
-위치: `[WP_2]\ITU_Doc\` (제품별 폴더). 발견된 추출 스크립트 5종 + 데이터:
+위치: 원본 PC `[WP_2]\ITU_Doc\` (제품별 폴더); **이 저장소에서는 루트의 `R-REC-P.453-14-201908-I!!ZIP-E` / `R-REC-P.836-6-201712-I!!ZIP-E` / `R-REC-P.837-8-202509-I!!ZIP-E` / `R-REC-P.839-4-201309-I!!ZIP-E` / `R-REC-P.840Part01-0-202308-I!!ZIP-E` 폴더 5종** (아래 원본 추출 스크립트 5종도 각 폴더 내부에 포함). 발견된 추출 스크립트 5종 + 데이터:
 
 | 스크립트 | 데이터 | 분석 결과 |
 |---|---|---|
@@ -44,9 +44,9 @@
 
 | v2 파일 | 위치 | 확장 내용 |
 |---|---|---|
-| `find_L_value_v2.m` | P.840 Part01 폴더 | 백분위 23종+mean/std, 자체검증 4종, CSV 저장 |
-| `GetSurfaceVaporDensity_v2.m` | RHO Annual Maps 폴더 | 18종 × **2방법**(plain=heritage / official=VSCH·TOPO 고도보정), CSV |
-| `find_N_wet_value_v2.m` | NWET Annual 폴더 | 18종(50% 포함), CSV |
+| `find_L_value_v2.m` | P.840 Part01 폴더 *(원본 PC 전용 — 이 저장소엔 원본 find_L_value.m만 있음; 대체: 루트 `ExtractITUPercentileInputs.m`)* | 백분위 23종+mean/std, 자체검증 4종, CSV 저장 |
+| `GetSurfaceVaporDensity_v2.m` | RHO Annual Maps 폴더 *(원본 PC 전용 — 이 저장소엔 원본 GetSurfaceVaporDensity.m만 있음; 대체: 루트 `ExtractITUPercentileInputs.m`)* | 18종 × **2방법**(plain=heritage / official=VSCH·TOPO 고도보정), CSV |
+| `find_N_wet_value_v2.m` | NWET Annual 폴더 *(원본 PC 전용 — 이 저장소엔 원본 find_N_wet_value.m만 있음; 대체: 루트 `ExtractITUPercentileInputs.m`)* | 18종(50% 포함), CSV |
 
 **샘플 위경도 검증 결과 (전부 PASS)**:
 
@@ -62,10 +62,10 @@
 
 ## 4. [T4] 가용도 후보군 수집·정리
 
-산출물 (모두 `[MATLAB_CODE]\`):
-- **`ITU_percentile_candidates.mat`** — struct S: L(5×23)+mean/std, RHO_plain/RHO_official(5×18), NWET(5×18), R001, hRain, 출처·검증 메모
-- **`availability_input_candidates.csv`** — 가용도 9종 × 5국 = 45행 입력 매핑 (90 / 95 / 98 / 99 / 99.5 / 99.8 / **99.9** / 99.95 / 99.99%)
-- 제품 폴더별 원시 CSV 3종 (`L_extracted_v2.csv`, `RHO_extracted_v2.csv`, `NWET_extracted_v2.csv`)
+산출물 (모두 원본 PC `[MATLAB_CODE]\`; 이 저장소에는 `availability_input_candidates.csv`만 루트에 복사됨):
+- **`ITU_percentile_candidates.mat`** — struct S: L(5×23)+mean/std, RHO_plain/RHO_official(5×18), NWET(5×18), R001, hRain, 출처·검증 메모 *(원본 PC 전용; 이 저장소에는 없음)*
+- **`availability_input_candidates.csv`** — 가용도 9종 × 5국 = 45행 입력 매핑 (90 / 95 / 98 / 99 / 99.5 / 99.8 / **99.9** / 99.95 / 99.99%) → **2026-06-11 확장: 70%·80% 행 추가로 11종 × 5국 = 55행** (둘 다 Eq.(66) no-rain, 공식 맵 재추출·앵커 검증; 저장소 루트에 있음)
+- 제품 폴더별 원시 CSV 3종 (`L_extracted_v2.csv`, `RHO_extracted_v2.csv`, `NWET_extracted_v2.csv`) *(원본 PC 전용; 이 저장소에는 없음)*
 
 **P.618-14 규칙이 만드는 구조** (테이블에 그대로 반영됨):
 - **가용도 ≥ 95% (p ≤ 5%)**: Eq.(65). 구름 L(5%)·가스 ρ(5%) **동결**(전 가용도 동일!), N_wet 중앙값 고정. 가용도별로 실제 변하는 것은 **강우 Step-10 스케일링과 신틸레이션 a(p)뿐** (a(p): 1.82→3.00→4.84→7.20 @ 95/99/99.9/99.99%)

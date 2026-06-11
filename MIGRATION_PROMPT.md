@@ -2,10 +2,12 @@
 
 > 사용법: 이 파일 내용 전체를 새 Claude Code 세션의 첫 메시지로 붙여넣으세요.
 > 작성: 2026-06-11, 이전 세션(검증·수정 완료)에서 인계.
+>
+> ⚠ **[상태 갱신 2026-06-11]** 이 저장소에는 본 지시서의 수정 4건이 **모두 적용·커밋 완료**됨 (커밋 `f248ae7` / `ce75d73` / `e60c969` — 검증 레시피 전 항목 통과; 수정 전 원본은 `_backup_pre_p618fix\`에 보존). **본 문서는 이력/참고용 — 재적용 금지.** 이후 확장: 가용도 70~99.99%(11종) 입력 자동 적용 (`ApplyAvailabilityInputs.m` + `availability_input_candidates.csv` 55행 + `ExtractITUPercentileInputs.m`).
 
 ---
 
-당신은 E/W-band 위성 다운링크 논문용 MATLAB 시뮬레이터(main_v2.m + 지원함수 10개, R2025b)가 있는 저장소에서 작업한다. 이 저장소의 코드는 **수정 전 원본**이다. 직전 세션에서 ITU-R 공식 원문(P.618-14 / P.838-3 / P.840-9 / P.676 / P.836-6 / P.453-14 / P.837-8 / P.839-4 — 전부 현행판 확인됨) 대조 전수 검증을 마쳤고, 아래 수정 4건이 **확정·수치검증 완료** 상태다. 너의 임무: ① 수정 전 원본을 `_backup_pre_p618fix\` 폴더에 백업 → ② 아래 수정을 정확히 적용 → ③ 검증 레시피 실행 → ④ 결과 보고 (+ git 저장소라면 수정 단위별 커밋).
+당신은 E/W-band 위성 다운링크 논문용 MATLAB 시뮬레이터(main_v2.m + 지원함수 10개, R2025b)가 있는 저장소에서 작업한다. 이 저장소의 코드는 **수정 전 원본**이다(작성 시점 기준 — 현재는 전부 적용 완료, 상단 상태 갱신 참조). 직전 세션에서 ITU-R 공식 원문(P.618-14 / P.838-3 / P.840-9 / P.676 / P.836-6 / P.453-14 / P.837-8 / P.839-4 — 전부 현행판 확인됨) 대조 전수 검증을 마쳤고, 아래 수정 4건이 **확정·수치검증 완료** 상태다. 너의 임무: ① 수정 전 원본을 `_backup_pre_p618fix\` 폴더에 백업 → ② 아래 수정을 정확히 적용 → ③ 검증 레시피 실행 → ④ 결과 보고 (+ git 저장소라면 수정 단위별 커밋).
 
 ## 수정 1 — main_v2.m: `gs0`(숫자0) → `gsO`(대문자O) [P0 실행차단 버그]
 
@@ -185,6 +187,6 @@ git 저장소라면 커밋 3개 권장: ① "Fix gs0->gsO undefined-variable bug
 ## (선택) 원본 PC에서 복사해오면 좋은 산출물
 
 원본 경로 `C:\Users\changmin_lee\SynologyDrive\[Stuttgart_공동연구]\` 기준:
-- `[WP_4]\[MATLAB_CODE]\` → VERIFICATION_REPORT.md(전체 검증·ITU 원문 인용 부록), P618_COMPLIANCE_WORK_REPORT.md, CODE_DOCUMENTATION.md, **ITU_percentile_candidates.mat**, **availability_input_candidates.csv**(가용도 90~99.99% 입력 후보군), .gitignore
-- `[WP_2]\ITU_Doc\...\` → v2 추출 스크립트 3종(find_L_value_v2.m / GetSurfaceVaporDensity_v2.m / find_N_wet_value_v2.m)과 추출 CSV 3종 — 향후 다른 백분위·다른 지상국 추가 시 재사용
+- `[WP_4]\[MATLAB_CODE]\` → VERIFICATION_REPORT.md(전체 검증·ITU 원문 인용 부록), P618_COMPLIANCE_WORK_REPORT.md, CODE_DOCUMENTATION.md, **ITU_percentile_candidates.mat**, **availability_input_candidates.csv**(가용도 90~99.99% 입력 후보군), .gitignore — **복사 완료** (MD 4종·CSV·.gitignore는 저장소 루트에 있음; CSV는 이후 70/80% 행 추가로 11개 가용도·55행으로 확장됨. **ITU_percentile_candidates.mat만 미복사** — 원본 PC 전용)
+- `[WP_2]\ITU_Doc\...\` → v2 추출 스크립트 3종(find_L_value_v2.m / GetSurfaceVaporDensity_v2.m / find_N_wet_value_v2.m)과 추출 CSV 3종 — 향후 다른 백분위·다른 지상국 추가 시 재사용 — **이 저장소에는 미복사**(원본 PC 전용). 단 ITU 공식 product 원본은 저장소 루트 R-REC-* 폴더 5종으로 확보됐고, 동등 기능의 재추출 도구 **`ExtractITUPercentileInputs.m`**이 루트에 추가됨(기존 앵커값 기계 정밀도 재현 검증)
 - 접근 불가 시: 본 지시서만으로 코드 수정·검증은 완결됨 (위 파일들은 문서·확장용)
