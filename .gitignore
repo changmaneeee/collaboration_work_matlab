@@ -1,0 +1,9 @@
+# Local Claude Code MCP server config — never commit/push
+.mcp.json
+
+# MATLAB autosave / temp
+*.asv
+*.m~
+
+# OS / editor cruft
+.DS_Store
